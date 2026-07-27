@@ -1,0 +1,19 @@
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+crash.*.log
+
+# Variable values (may hold environment-specific settings)
+terraform.tfvars
+*.auto.tfvars
+
+# Overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
