@@ -108,8 +108,8 @@ Notes for this mode:
   https://login.microsoftonline.com/<tenant-id>/adminconsent?client_id=41b23e61-6c1e-4545-b367-cd054e0ed4b4
   ```
 
-- The gateway takes **30–45 minutes** to provision and costs **~$140/month**
-  (VpnGw1) while it exists.
+- The gateway takes **30–45 minutes** to provision and costs roughly
+  **$190/month** (VpnGw1AZ, region-dependent) while it exists.
 - Client setup: install the Azure VPN Client, then generate the profile with
   `az network vnet-gateway vpn-client generate -g <rg> -n <vpn_gateway_name output>`
   and import `AzureVPN/azurevpnconfig.xml` from the downloaded zip.
@@ -133,7 +133,7 @@ Notes for this mode:
 | `aci_subnet_cidr` | `string` | `"10.10.1.0/24"` | ACI subnet prefix |
 | `gateway_subnet_cidr` | `string` | `"10.10.255.0/27"` | GatewaySubnet prefix (VPN only) |
 | `vpn_client_address_pool` | `string` | `"172.16.201.0/24"` | P2S client pool (VPN only); must not overlap the VNet |
-| `vpn_gateway_sku` | `string` | `"VpnGw1"` | VpnGw1/VpnGw2/VpnGw3 |
+| `vpn_gateway_sku` | `string` | `"VpnGw1AZ"` | VpnGw1AZ–VpnGw5AZ (Azure retired non-AZ SKUs) |
 | `vpn_aad_audience` | `string` | Azure VPN app ID | Entra app the VPN accepts tokens for |
 | `additional_allowed_cidrs` | `list(string)` | `[]` | Extra CIDRs allowed to reach port 8000 (e.g. peered VNets) |
 | `stellar_network` | `string` | `"local"` | `local`, `testnet`, or `futurenet` |
@@ -175,6 +175,6 @@ plus which networks Friendbot is available on (`local` only).
   `index.docker.io`. Just re-run apply — the retry usually succeeds
   immediately.
 - **Costs (East US, approximate)**: ACI 2 vCPU / 8 GB ~$100/mo; VPN gateway
-  (when enabled) ~$140/mo + ~$4 for its public IP.
+  (when enabled) ~$190/mo + ~$4 for its public IP.
 - The `azurerm` provider is configured by the caller, not the module; azurerm
   4.x needs `ARM_SUBSCRIPTION_ID` (or `subscription_id`) set.

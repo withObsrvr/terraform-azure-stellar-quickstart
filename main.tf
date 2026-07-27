@@ -256,6 +256,7 @@ resource "azurerm_public_ip" "vpn_gateway" {
   resource_group_name = local.resource_group_name
   allocation_method   = "Static"
   sku                 = "Standard"
+  zones               = var.vpn_gateway_public_ip_zones
   tags                = local.common_tags
 }
 
@@ -268,7 +269,6 @@ resource "azurerm_virtual_network_gateway" "vpn" {
   type                = "Vpn"
   vpn_type            = "RouteBased"
   sku                 = var.vpn_gateway_sku
-  generation          = "Generation1"
   tags                = local.common_tags
 
   ip_configuration {

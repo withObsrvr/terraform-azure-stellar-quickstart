@@ -70,14 +70,20 @@ variable "vpn_client_address_pool" {
 }
 
 variable "vpn_gateway_sku" {
-  description = "VPN gateway SKU (VpnGw1/VpnGw2/VpnGw3 for Generation1). Only used when enable_vpn_gateway = true."
+  description = "VPN gateway SKU. Azure retired the non-AZ SKUs (VpnGw1-5) in 2026 — only AZ SKUs can be created. Only used when enable_vpn_gateway = true."
   type        = string
-  default     = "VpnGw1"
+  default     = "VpnGw1AZ"
 
   validation {
-    condition     = contains(["VpnGw1", "VpnGw2", "VpnGw3"], var.vpn_gateway_sku)
-    error_message = "vpn_gateway_sku must be one of: VpnGw1, VpnGw2, VpnGw3."
+    condition     = contains(["VpnGw1AZ", "VpnGw2AZ", "VpnGw3AZ", "VpnGw4AZ", "VpnGw5AZ"], var.vpn_gateway_sku)
+    error_message = "vpn_gateway_sku must be one of: VpnGw1AZ, VpnGw2AZ, VpnGw3AZ, VpnGw4AZ, VpnGw5AZ (Azure no longer allows creating non-AZ VPN gateway SKUs)."
   }
+}
+
+variable "vpn_gateway_public_ip_zones" {
+  description = "Availability zones for the VPN gateway's public IP. AZ gateway SKUs require a zonal public IP; the default is zone-redundant across 1-3. Reduce for regions with fewer zones. Only used when enable_vpn_gateway = true."
+  type        = list(string)
+  default     = ["1", "2", "3"]
 }
 
 variable "vpn_aad_audience" {
