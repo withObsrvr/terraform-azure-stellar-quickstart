@@ -40,7 +40,7 @@ variable "dns_name_label" {
 }
 
 variable "enable_vpn_gateway" {
-  description = "Whether to deploy a Point-to-Site VPN gateway (Entra ID auth) for access from outside the VNet. Adds ~30-45 min to provisioning and ~$140/month."
+  description = "Whether to deploy a Point-to-Site VPN gateway (Entra ID auth) for access from outside the VNet. Adds ~30-45 min to provisioning and roughly $190/month (region-dependent)."
   type        = bool
   default     = false
 }
@@ -87,9 +87,9 @@ variable "vpn_gateway_public_ip_zones" {
 }
 
 variable "vpn_aad_audience" {
-  description = "Application ID the P2S VPN accepts tokens for. Default is the Microsoft-registered Azure VPN Client enterprise app, which requires one-time admin consent in the tenant."
+  description = "Audience application ID accepted by the P2S VPN. The default is Microsoft's current registered Azure VPN Client, which needs no tenant admin consent. Set a custom audience to restrict access through an assigned Entra application."
   type        = string
-  default     = "41b23e61-6c1e-4545-b367-cd054e0ed4b4"
+  default     = "c632b3df-fb67-4d84-bdcf-b95ad541b5c8"
 }
 
 variable "additional_allowed_cidrs" {

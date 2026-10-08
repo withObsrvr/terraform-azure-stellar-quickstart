@@ -10,7 +10,7 @@ open internet is the point of this design. A public mode
 
 ```mermaid
 flowchart LR
-    dev[Developer laptop\nAzure VPN Client] -- "OpenVPN + Entra ID\n(optional)" --> vgw[VPN Gateway\npublic IP]
+    dev[Windows/macOS developer\nAzure VPN Client] -- "OpenVPN + Entra ID\n(optional)" --> vgw[VPN Gateway\npublic IP]
     subgraph vnet [VNet]
         vgw --> nsg[NSG: TCP 8000 only\nfrom allowed sources]
         nsg --> aci[ACI container group\nstellar/quickstart\nprivate IP]
@@ -35,7 +35,7 @@ VNets only):
 
 ```hcl
 module "stellar_quickstart" {
-  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.0"
+  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.1"
 
   location        = "eastus"
   environment     = "dev"
@@ -47,7 +47,7 @@ Existing resource group + VPN for laptop access:
 
 ```hcl
 module "stellar_quickstart" {
-  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.0"
+  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.1"
 
   resource_group_name = "rg-obsrvr-shared-dev" # used as-is, not created
   enable_vpn_gateway  = true
@@ -62,7 +62,7 @@ Public demo — no VNet, public IP + FQDN, **everything internet-reachable**:
 
 ```hcl
 module "stellar_quickstart" {
-  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.0"
+  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.1"
 
   location       = "eastus"
   network_access = "public"
@@ -102,11 +102,18 @@ your consumer VNet (use the `vnet_id` output) and add its CIDR to
 `enable_vpn_gateway = true` adds a P2S OpenVPN gateway with Entra ID auth.
 Notes for this mode:
 
-- **One-time tenant admin consent** for the Azure VPN Client enterprise app:
-
-  ```
-  https://login.microsoftonline.com/<tenant-id>/adminconsent?client_id=41b23e61-6c1e-4545-b367-cd054e0ed4b4
-  ```
+- The default audience is Microsoft's current registered Azure VPN Client app
+  (`c632b3df-fb67-4d84-bdcf-b95ad541b5c8`), which does not require tenant
+  admin consent. The older manually registered client is not used.
+- By default, authentication is tenant-wide. For least-privilege access,
+  create a custom audience application, require assignment, assign a dedicated
+  developer group, and set `vpn_aad_audience` to that application's client ID.
+- Entra authentication through Azure VPN Client is supported on Windows and
+  macOS. Microsoft's Linux Azure VPN Client retired on August 31, 2026; Linux
+  clients require a different authentication design such as certificates.
+  See Microsoft's [P2S Entra configuration](https://learn.microsoft.com/azure/vpn-gateway/point-to-site-entra-gateway),
+  [assigned-user/group access](https://learn.microsoft.com/azure/vpn-gateway/point-to-site-entra-users-access),
+  and [Linux retirement guidance](https://learn.microsoft.com/azure/vpn-gateway/azure-vpn-client-linux-retirement).
 
 - The gateway takes **30–45 minutes** to provision and costs roughly
   **$190/month** (VpnGw1AZ, region-dependent) while it exists.
@@ -134,7 +141,7 @@ Notes for this mode:
 | `gateway_subnet_cidr` | `string` | `"10.10.255.0/27"` | GatewaySubnet prefix (VPN only) |
 | `vpn_client_address_pool` | `string` | `"172.16.201.0/24"` | P2S client pool (VPN only); must not overlap the VNet |
 | `vpn_gateway_sku` | `string` | `"VpnGw1AZ"` | VpnGw1AZ–VpnGw5AZ (Azure retired non-AZ SKUs) |
-| `vpn_aad_audience` | `string` | Azure VPN app ID | Entra app the VPN accepts tokens for |
+| `vpn_aad_audience` | `string` | Microsoft-registered client ID | Entra audience the VPN accepts; set a custom app ID for assigned-user/group access |
 | `additional_allowed_cidrs` | `list(string)` | `[]` | Extra CIDRs allowed to reach port 8000 (e.g. peered VNets) |
 | `stellar_network` | `string` | `"local"` | `local`, `testnet`, or `futurenet` |
 | `quickstart_image` | `string` | `stellar/quickstart:latest` | Pin a tag for reproducibility |
