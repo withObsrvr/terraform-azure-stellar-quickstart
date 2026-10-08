@@ -35,7 +35,7 @@ VNets only):
 
 ```hcl
 module "stellar_quickstart" {
-  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.2"
+  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.3"
 
   location        = "eastus"
   environment     = "dev"
@@ -47,7 +47,7 @@ Existing resource group + VPN for laptop access:
 
 ```hcl
 module "stellar_quickstart" {
-  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.2"
+  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.3"
 
   resource_group_name = "rg-obsrvr-shared-dev" # used as-is, not created
   enable_vpn_gateway  = true
@@ -62,7 +62,7 @@ Public demo — no VNet, public IP + FQDN, **everything internet-reachable**:
 
 ```hcl
 module "stellar_quickstart" {
-  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.2"
+  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.3"
 
   location       = "eastus"
   network_access = "public"
