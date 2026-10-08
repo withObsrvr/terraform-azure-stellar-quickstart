@@ -69,6 +69,17 @@ variable "vpn_client_address_pool" {
   default     = "172.16.201.0/24"
 }
 
+variable "vpn_authentication_type" {
+  description = "P2S authentication mode: entra uses Azure VPN Client on Windows/macOS; certificate supports standard OpenVPN clients including Linux."
+  type        = string
+  default     = "entra"
+
+  validation {
+    condition     = contains(["entra", "certificate"], var.vpn_authentication_type)
+    error_message = "vpn_authentication_type must be \"entra\" or \"certificate\"."
+  }
+}
+
 variable "vpn_gateway_sku" {
   description = "VPN gateway SKU. Azure retired the non-AZ SKUs (VpnGw1-5) in 2026 — only AZ SKUs can be created. Only used when enable_vpn_gateway = true."
   type        = string
@@ -90,6 +101,18 @@ variable "vpn_aad_audience" {
   description = "Audience application ID accepted by the P2S VPN. The default is Microsoft's current registered Azure VPN Client, which needs no tenant admin consent. Set a custom audience to restrict access through an assigned Entra application."
   type        = string
   default     = "c632b3df-fb67-4d84-bdcf-b95ad541b5c8"
+}
+
+variable "vpn_root_certificate_name" {
+  description = "Name of the trusted root certificate uploaded to the VPN gateway in certificate mode."
+  type        = string
+  default     = "stellar-p2s-root"
+}
+
+variable "vpn_root_certificate_data" {
+  description = "Base64-encoded DER public root certificate trusted by the VPN gateway. Required when vpn_authentication_type is certificate. Never provide the CA private key."
+  type        = string
+  default     = null
 }
 
 variable "additional_allowed_cidrs" {

@@ -35,7 +35,7 @@ VNets only):
 
 ```hcl
 module "stellar_quickstart" {
-  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.1"
+  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.2"
 
   location        = "eastus"
   environment     = "dev"
@@ -47,7 +47,7 @@ Existing resource group + VPN for laptop access:
 
 ```hcl
 module "stellar_quickstart" {
-  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.1"
+  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.2"
 
   resource_group_name = "rg-obsrvr-shared-dev" # used as-is, not created
   enable_vpn_gateway  = true
@@ -62,7 +62,7 @@ Public demo — no VNet, public IP + FQDN, **everything internet-reachable**:
 
 ```hcl
 module "stellar_quickstart" {
-  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.1"
+  source = "git::https://github.com/withobsrvr/terraform-azure-stellar-quickstart.git?ref=v0.1.2"
 
   location       = "eastus"
   network_access = "public"
@@ -114,6 +114,9 @@ Notes for this mode:
   See Microsoft's [P2S Entra configuration](https://learn.microsoft.com/azure/vpn-gateway/point-to-site-entra-gateway),
   [assigned-user/group access](https://learn.microsoft.com/azure/vpn-gateway/point-to-site-entra-users-access),
   and [Linux retirement guidance](https://learn.microsoft.com/azure/vpn-gateway/azure-vpn-client-linux-retirement).
+- Set `vpn_authentication_type = "certificate"` and provide
+  `vpn_root_certificate_data` to use standard OpenVPN clients on Linux instead.
+  Only the public root certificate is uploaded; keep its private key offline.
 
 - The gateway takes **30–45 minutes** to provision and costs roughly
   **$190/month** (VpnGw1AZ, region-dependent) while it exists.
@@ -140,8 +143,11 @@ Notes for this mode:
 | `aci_subnet_cidr` | `string` | `"10.10.1.0/24"` | ACI subnet prefix |
 | `gateway_subnet_cidr` | `string` | `"10.10.255.0/27"` | GatewaySubnet prefix (VPN only) |
 | `vpn_client_address_pool` | `string` | `"172.16.201.0/24"` | P2S client pool (VPN only); must not overlap the VNet |
+| `vpn_authentication_type` | `string` | `"entra"` | `entra` for Azure VPN Client on Windows/macOS, or `certificate` for standard OpenVPN clients including Linux |
 | `vpn_gateway_sku` | `string` | `"VpnGw1AZ"` | VpnGw1AZ–VpnGw5AZ (Azure retired non-AZ SKUs) |
 | `vpn_aad_audience` | `string` | Microsoft-registered client ID | Entra audience the VPN accepts; set a custom app ID for assigned-user/group access |
+| `vpn_root_certificate_name` | `string` | `"stellar-p2s-root"` | Trusted root name in certificate mode |
+| `vpn_root_certificate_data` | `string` | `null` | Base64 DER public root certificate; required in certificate mode |
 | `additional_allowed_cidrs` | `list(string)` | `[]` | Extra CIDRs allowed to reach port 8000 (e.g. peered VNets) |
 | `stellar_network` | `string` | `"local"` | `local`, `testnet`, or `futurenet` |
 | `quickstart_image` | `string` | `stellar/quickstart:latest` | Pin a tag for reproducibility |

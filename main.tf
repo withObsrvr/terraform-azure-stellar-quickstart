@@ -271,6 +271,13 @@ resource "azurerm_virtual_network_gateway" "vpn" {
   sku                 = var.vpn_gateway_sku
   tags                = local.common_tags
 
+  lifecycle {
+    precondition {
+      condition     = var.vpn_authentication_type != "certificate" || var.vpn_root_certificate_data != null
+      error_message = "vpn_root_certificate_data is required when vpn_authentication_type = \"certificate\"."
+    }
+  }
+
   ip_configuration {
     name                          = "vpngw-ipconfig"
     public_ip_address_id          = azurerm_public_ip.vpn_gateway[0].id
@@ -281,8 +288,18 @@ resource "azurerm_virtual_network_gateway" "vpn" {
   vpn_client_configuration {
     address_space        = [var.vpn_client_address_pool]
     vpn_client_protocols = ["OpenVPN"]
-    aad_tenant           = local.aad_tenant_url
-    aad_audience         = var.vpn_aad_audience
-    aad_issuer           = local.aad_issuer_url
+    vpn_auth_types       = [var.vpn_authentication_type == "entra" ? "AAD" : "Certificate"]
+    aad_tenant           = var.vpn_authentication_type == "entra" ? local.aad_tenant_url : null
+    aad_audience         = var.vpn_authentication_type == "entra" ? var.vpn_aad_audience : null
+    aad_issuer           = var.vpn_authentication_type == "entra" ? local.aad_issuer_url : null
+
+    dynamic "root_certificate" {
+      for_each = var.vpn_authentication_type == "certificate" ? [1] : []
+
+      content {
+        name             = var.vpn_root_certificate_name
+        public_cert_data = var.vpn_root_certificate_data
+      }
+    }
   }
 }
